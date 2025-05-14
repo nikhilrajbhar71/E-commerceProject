@@ -214,26 +214,34 @@ export const addAddress = async (req, res, next) => {
 };
 
 export const getAllAddresses = async (req, res, next) => {
-  const addresses = await findAllAddresses(req.user.id);
-  return responseHandler(
-    res,
-    200,
-    "Addresses fetched successfully",
-    AddressResource.collection(addresses)
-  );
+  try {
+    const addresses = await findAllAddresses(req.user.id);
+    return responseHandler(
+      res,
+      200,
+      "Addresses fetched successfully",
+      AddressResource.collection(addresses)
+    );
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const deleteAddress = async (req, res, next) => {
-  const addressId = req.params.id;
-  await deleteAddressById(addressId);
-  return responseHandler(res, 200, "Address deleted successfully");
+  try {
+    const addressId = req.params.id;
+    await deleteAddressById(addressId);
+    return responseHandler(res, 200, "Address deleted successfully");
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const updateAddress = async (req, res, next) => {
   try {
     const addressId = req.params.id;
     const incomingData = req.body;
-    
+
     await updateAddressById(incomingData, addressId);
     return responseHandler(res, 200, "Address updated successfully", {});
   } catch (error) {

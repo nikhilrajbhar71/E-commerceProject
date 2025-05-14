@@ -11,9 +11,8 @@ import Order from "../models/order.model.js";
 import { findCartByUserId } from "../services/cart.service.js";
 
 export const createOrder = async (req, res, next) => {
-  const t = await Order.sequelize.transaction();
-
   try {
+    const t = await Order.sequelize.transaction();
     const { address, phoneNumber, paymentStatus } = req.body;
     const userId = req.user.id;
 
@@ -33,7 +32,7 @@ export const createOrder = async (req, res, next) => {
     if (!t.finished) {
       await t.rollback();
     }
-    next(error);   
+    next(error);
   }
 };
 

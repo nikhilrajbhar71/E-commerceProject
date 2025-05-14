@@ -103,9 +103,8 @@ export const getAllProducts = async (req, res, next) => {
 };
 
 export const getProduct = async (req, res, next) => {
-  const productId = req.params.id;
-
   try {
+    const productId = req.params.id;
     const product = await getProductWithVariant(productId);
 
     return responseHandler(
