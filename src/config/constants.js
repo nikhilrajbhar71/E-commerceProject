@@ -7,8 +7,7 @@ export const serverErrorCodes = [400, 401, 500, 404];
 export const updatableOrderFields = ["address", "phoneNumber"];
 export const allowedAddressFields = [
   "label",
-  "line1",
-  "line2",
+  "line",
   "city",
   "state",
   "postalCode",

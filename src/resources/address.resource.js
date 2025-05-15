@@ -5,12 +5,12 @@ class AddressResource extends Resource {
     return {
       id: Number(this.id) || 0,
       label: this.label || "",
-      line1: this.line1 || "",
-      line2: this.line2 || "",
+      line: this.line || "",
       city: this.city || "",
       state: this.state || "",
       postal_code: this.postalCode || "",
       country: this.country || "",
+      isDefault: this.isDefault || false,
       created_at: this.createdAt || "",
       updated_at: this.updatedAt || "",
     };

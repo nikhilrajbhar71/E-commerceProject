@@ -71,7 +71,7 @@ export const hashPassword = async (password) => {
 };
 
 export const createAddress = async (address, userId) => {
-  await Address.create({ ...address, userId });
+  return await Address.create({ ...address, userId });
 };
 
 export const findAllAddresses = async (userId) => {
@@ -104,5 +104,36 @@ export const updateAddressById = async (incomingData, addressId) => {
 export const matchOTP = (otp, storedOtp) => {
   if (otp !== storedOtp) {
     throw new AppError(200, "OTP did not match");
+  }
+};
+
+export const fetchAddressById = async (id) => {
+  const address = await Address.findByPk(id);
+  if (!address) {
+    throw new AppError(404, "Address not found");
+  }
+};
+
+export const fetchAddressCount = async (userId) => {
+  const count = await Address.count({
+    where: {
+      userId,
+    },
+  });
+  return count;
+};
+
+export const setAddressAsDefault = async (id) => {
+  await Address.update({ isDefault: true }, { where: { id } });
+};
+
+export const markAllUserAddressesAsNonDefault = async (userId) => {
+  await Address.update({ isDefault: false }, { where: { userId } });
+};
+
+export const verifyAddressOwnership = async (addressId, userId) => {
+  const address = await Address.findByPk(addressId);
+  if (address.userId != userId) {
+    throw new AppError(401, "Unauthorized");
   }
 };

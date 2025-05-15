@@ -8,6 +8,7 @@ import {
   createUser,
   deleteAddressById,
   deleteUser,
+  fetchAddressCount,
   findAllAddresses,
   findIfUserExists,
   findResetToken,
@@ -15,8 +16,11 @@ import {
   findUserByPk,
   generateResetToken,
   hashPassword,
+  markAllUserAddressesAsNonDefault,
   matchOTP,
+  setAddressAsDefault,
   updateAddressById,
+  verifyAddressOwnership,
 } from "../services/user.service.js";
 
 import { sendResetEmail } from "../utils/sendResetEmail.js";
@@ -193,20 +197,22 @@ export const resetPassword = async (req, res, next) => {
 
 export const addAddress = async (req, res, next) => {
   try {
-    const { label, line1, line2, city, state, postalCode, country } = req.body;
+    const { label, line, city, state, postalCode, country } = req.body;
     const userId = req.user.id;
-    await findIfUserExists(userId);
     const address = {
       label,
-      line1,
-      line2,
+      line,
       city,
       state,
       postalCode,
       country,
     };
-    await createAddress(address, userId);
 
+    const newAddress = await createAddress(address, userId);
+    const addressCount = await fetchAddressCount(userId);
+    if (addressCount == 1) {
+      const temp = await setAddressAsDefault(newAddress.id);
+    }
     return responseHandler(res, 200, "Address added successfully", {});
   } catch (error) {
     next(error);
@@ -224,12 +230,14 @@ export const getAllAddresses = async (req, res, next) => {
     );
   } catch (error) {
     next(error);
+    d;
   }
 };
 
 export const deleteAddress = async (req, res, next) => {
   try {
     const addressId = req.params.id;
+    await verifyAddressOwnership(addressId, req.user.id);
     await deleteAddressById(addressId);
     return responseHandler(res, 200, "Address deleted successfully");
   } catch (error) {
@@ -241,9 +249,21 @@ export const updateAddress = async (req, res, next) => {
   try {
     const addressId = req.params.id;
     const incomingData = req.body;
-
+    await verifyAddressOwnership(addressId, req.user.id);
     await updateAddressById(incomingData, addressId);
     return responseHandler(res, 200, "Address updated successfully", {});
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const setAddressToDefault = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const newDefaultId = req.params.id;
+    await markAllUserAddressesAsNonDefault(userId);
+    await setAddressAsDefault(newDefaultId);
+    return responseHandler(res, 200, "Address set as default successfully", {});
   } catch (error) {
     next(error);
   }

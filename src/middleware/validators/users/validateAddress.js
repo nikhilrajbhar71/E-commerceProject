@@ -4,9 +4,7 @@ import { throwValidationError } from "../throwValidationError.js";
 export const validateAddAddress = [
   body("label").trim().notEmpty().withMessage("Label is required"),
 
-  body("line1").trim().notEmpty().withMessage("Address line 1 is required"),
-
-  body("line2").optional().trim(),
+  body("line").trim().notEmpty().withMessage("Address line  is required"),
 
   body("city").trim().notEmpty().withMessage("City is required"),
 

@@ -3,6 +3,7 @@ import {
   addAddress,
   deleteAddress,
   getAllAddresses,
+  setAddressToDefault,
   updateAddress,
 } from "../controllers/user.controller.js";
 import authenticateUser from "../middleware/authenticateUser.js";
@@ -27,5 +28,6 @@ addressRouter.put(
   authenticateUser,
   updateAddress
 );
+addressRouter.put("/default/:id", validateAddressId,authenticateUser,setAddressToDefault);
 
 export default addressRouter;

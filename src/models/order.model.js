@@ -18,8 +18,8 @@ const Order = sequelize.define(
       type: DataTypes.FLOAT,
       allowNull: false,
     },
-    address: {
-      type: DataTypes.STRING,
+    addressId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     phoneNumber: {

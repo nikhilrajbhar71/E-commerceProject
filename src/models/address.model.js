@@ -16,12 +16,9 @@ const Address = sequelize.define(
     label: {
       type: DataTypes.STRING,
     },
-    line1: {
+    line: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    line2: {
-      type: DataTypes.STRING,
     },
     city: {
       type: DataTypes.STRING,
@@ -36,6 +33,11 @@ const Address = sequelize.define(
     country: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    isDefault: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false,
     },
   },
   {

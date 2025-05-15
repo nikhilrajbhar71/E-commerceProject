@@ -9,7 +9,7 @@ import ProductVariant from "../models/productVariant.model.js";
 
 export const createNewOrder = async (
   products,
-  address,
+  addressId,
   phoneNumber,
   paymentStatus,
   userId,
@@ -70,7 +70,7 @@ export const createNewOrder = async (
       {
         userId,
         totalAmount,
-        address,
+        addressId,
         phoneNumber,
         paymentStatus,
       },

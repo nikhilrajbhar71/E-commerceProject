@@ -8,13 +8,12 @@ export const validateOptionalAddressFields = [
     .notEmpty()
     .withMessage("Label must not be empty"),
 
-  body("line1")
+  body("line")
     .optional()
     .trim()
     .notEmpty()
-    .withMessage("Address line 1 must not be empty"),
+    .withMessage("Address line  must not be empty"),
 
-  body("line2").optional().trim(),
 
   body("city")
     .optional()

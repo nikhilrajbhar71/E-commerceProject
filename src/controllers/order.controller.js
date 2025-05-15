@@ -9,17 +9,18 @@ import {
 
 import Order from "../models/order.model.js";
 import { findCartByUserId } from "../services/cart.service.js";
+import { fetchAddressById } from "../services/user.service.js";
 
 export const createOrder = async (req, res, next) => {
   try {
     const t = await Order.sequelize.transaction();
-    const { address, phoneNumber, paymentStatus } = req.body;
+    const { addressId, phoneNumber, paymentStatus } = req.body;
     const userId = req.user.id;
-
+    await fetchAddressById(addressId);
     const cart = await findCartByUserId(userId);
     const order = await createNewOrder(
       cart.CartItems,
-      address,
+      addressId,
       phoneNumber,
       paymentStatus,
       userId,
