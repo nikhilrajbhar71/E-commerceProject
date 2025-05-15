@@ -211,7 +211,7 @@ export const addAddress = async (req, res, next) => {
     const newAddress = await createAddress(address, userId);
     const addressCount = await fetchAddressCount(userId);
     if (addressCount == 1) {
-      const temp = await setAddressAsDefault(newAddress.id);
+      await setAddressAsDefault(newAddress.id);
     }
     return responseHandler(res, 200, "Address added successfully", {});
   } catch (error) {
@@ -237,8 +237,7 @@ export const getAllAddresses = async (req, res, next) => {
 export const deleteAddress = async (req, res, next) => {
   try {
     const addressId = req.params.id;
-    await verifyAddressOwnership(addressId, req.user.id);
-    await deleteAddressById(addressId);
+    await deleteAddressById(addressId, req.user.id);
     return responseHandler(res, 200, "Address deleted successfully");
   } catch (error) {
     next(error);

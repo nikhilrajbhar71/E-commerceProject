@@ -17,6 +17,7 @@ export const createOrder = async (req, res, next) => {
     const { addressId, phoneNumber, paymentStatus } = req.body;
     const userId = req.user.id;
     await fetchAddressById(addressId);
+    // Question : DO I NEED TO VERIFY IF THE ADDRESS BELONGS TO THAT USER
     const cart = await findCartByUserId(userId);
     const order = await createNewOrder(
       cart.CartItems,

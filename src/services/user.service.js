@@ -83,10 +83,11 @@ export const findAllAddresses = async (userId) => {
   return addresses;
 };
 
-export const deleteAddressById = async (addressId) => {
+export const deleteAddressById = async (addressId, userId) => {
   await Address.destroy({
     where: {
       id: addressId,
+      userId,
     },
   });
 };
