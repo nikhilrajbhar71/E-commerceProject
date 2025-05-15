@@ -4,11 +4,9 @@ import {
   createVariantService,
   deleteVariantService,
   findAllVariants,
-  findProductByPk,
   findProductByPkAndUserId,
   findVariantWithProduct,
   updateVariantService,
-  verifyProductOwnership,
   verifyVariantOwnership,
 } from "../services/product.service.js";
 import responseHandler from "../utils/responseHandler.js";
@@ -42,7 +40,6 @@ export const getVariantsByProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
     const variants = await findAllVariants(id);
-    console.log("variants " + JSON.stringify(variants));
     return responseHandler(
       res,
       200,
@@ -57,14 +54,14 @@ export const getVariantsByProduct = async (req, res, next) => {
 export const updateVariant = async (req, res, next) => {
   try {
     const variantId = req.params.id;
+
     const variant = await findVariantWithProduct(variantId);
-    console.log("variant " + JSON.stringify(variant));
     verifyVariantOwnership(variant, req.user.id);
 
     await updateVariantService(variant, req.body);
     return responseHandler(res, 200, "Variant updated successfully", {});
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -72,9 +69,10 @@ export const deleteVariant = async (req, res, next) => {
   try {
     const variantId = req.params.id;
     const variant = await findVariantWithProduct(variantId);
+    verifyVariantOwnership(variant, req.user.id);
     await deleteVariantService(variant, req.user.id);
     return responseHandler(res, 200, "variant deleted successfully", {});
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 };
