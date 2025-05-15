@@ -5,6 +5,7 @@ import {
   deleteProductById,
   fetchAllProducts,
   findProductByPk,
+  findProductByPkAndUserId,
   getProductWithVariant,
   updateProductService,
   updateProductStatus,
@@ -57,8 +58,7 @@ export const createProduct = async (req, res, next) => {
 export const updateStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const product = await findProductByPk(id);
-    verifyProductOwnership(product, req.user);
+    await findProductByPkAndUserId(id, req.user.id);
     await updateProductStatus(id);
 
     return responseHandler(res, 200, "Product status updated successfully", {});
@@ -69,9 +69,7 @@ export const updateStatus = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
   try {
-    const product = await findProductByPk(req.params.id);
-
-    verifyProductOwnership(product, req.user);
+    await findProductByPkAndUserId(req.params.id, req.user.id);
 
     await deleteProductById(req.params.id);
 
@@ -122,8 +120,7 @@ export const updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const product = await findProductByPk(id);
-    verifyProductOwnership(product, req.user);
+    const product = await findProductByPkAndUserId(id, req.user.id);
 
     await updateProductService(product, req.body);
 

@@ -5,7 +5,10 @@ import ProductResource from "../resources/product.resource.js";
 import Product from "../models/product.model.js";
 import { Op } from "sequelize";
 import ProductVariant from "../models/productVariant.model.js";
-import { allowedFieldsInProducts, allowedFieldsInVariants } from "../config/constants.js";
+import {
+  allowedFieldsInProducts,
+  allowedFieldsInVariants,
+} from "../config/constants.js";
 
 export const createNewProduct = async ({
   name,
@@ -39,6 +42,18 @@ export const findProductByPk = async (id) => {
   return product;
 };
 
+export const findProductByPkAndUserId = async (id, sellerId) => {
+  const product = await Product.findOne({
+    where: {
+      id,
+      sellerId,
+    },
+  });
+  if (!product) {
+    throw new AppError(404, "Product not found");
+  }
+  return product;
+};
 export const updateProductStatus = async (id) => {
   await Product.update(
     { isActive: Sequelize.literal("NOT isActive") },
@@ -128,9 +143,8 @@ export const updateProductService = async (product, reqBody) => {
   await product.save();
 };
 
-export const createVariantService = async (variantsArray, product) => {
-  const productId = product.id;
-  const variants = await Promise.all(
+export const createVariantService = async (variantsArray, productId) => {
+  await Promise.all(
     variantsArray.map(({ color, size, price, stock, sku }) =>
       ProductVariant.create({
         productId,
@@ -142,11 +156,6 @@ export const createVariantService = async (variantsArray, product) => {
       })
     )
   );
-
-  const productData = product.toJSON();
-  productData.variants = variants;
-
-  return productData;
 };
 
 export const findAllVariants = async (productId) => {

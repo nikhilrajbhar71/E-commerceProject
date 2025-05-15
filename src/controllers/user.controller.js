@@ -248,8 +248,7 @@ export const updateAddress = async (req, res, next) => {
   try {
     const addressId = req.params.id;
     const incomingData = req.body;
-    await verifyAddressOwnership(addressId, req.user.id);
-    await updateAddressById(incomingData, addressId);
+    await updateAddressById(incomingData, addressId,req.user.id);
     return responseHandler(res, 200, "Address updated successfully", {});
   } catch (error) {
     next(error);

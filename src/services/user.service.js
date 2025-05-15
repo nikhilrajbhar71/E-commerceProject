@@ -92,8 +92,11 @@ export const deleteAddressById = async (addressId, userId) => {
   });
 };
 
-export const updateAddressById = async (incomingData, addressId) => {
-  const address = await Address.findOne({ where: { id: addressId } });
+export const updateAddressById = async (incomingData, addressId, userId) => {
+  const address = await Address.findOne({ where: { id: addressId, userId } });
+  if (!address) {
+    throw new AppError(404, "Address doesn't exit");
+  }
   for (const key of allowedAddressFields) {
     if (incomingData[key] !== undefined) {
       address[key] = incomingData[key];

@@ -5,6 +5,7 @@ import {
   deleteVariantService,
   findAllVariants,
   findProductByPk,
+  findProductByPkAndUserId,
   findVariantWithProduct,
   updateVariantService,
   verifyProductOwnership,
@@ -15,10 +16,11 @@ import responseHandler from "../utils/responseHandler.js";
 export const createVariant = async (req, res, next) => {
   try {
     const { id } = req.params;
+    // TODO : user can send whole array of variants, as adding one by one would be irritating.
     const { color, size, price, stock, sku } = req.body;
-    const product = await findProductByPk(id);
+    const product = await findProductByPkAndUserId(id, req.user.id);
     await checkIfVariantExists(size, color, product.id);
-    verifyProductOwnership(product, req.user);
+    // we are already creating an array, we just need to change the input format, then we can directly use array
     const variants = [
       {
         color,
@@ -28,7 +30,7 @@ export const createVariant = async (req, res, next) => {
         sku,
       },
     ];
-    await createVariantService(variants, product);
+    await createVariantService(variants, product.id);
 
     return responseHandler(res, 200, "Variant added successfully", {});
   } catch (error) {
