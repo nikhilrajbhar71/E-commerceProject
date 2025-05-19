@@ -14,81 +14,72 @@ export const createNewOrder = async (
   userId,
   t
 ) => {
-  try {
-    const variantData = await Promise.all(
-      products.map(({ productId, variantId }) =>
-        ProductVariant.findOne({
-          where: {
-            id: variantId,
-            productId: productId,
-          },
-          include: [{ model: Product }],
-          transaction: t,
-        })
-      )
-    );
+  const variantData = await Promise.all(
+    products.map(({ productId, variantId }) =>
+      ProductVariant.findOne({
+        where: {
+          id: variantId,
+          productId: productId,
+        },
+        include: [{ model: Product }],
+        transaction: t,
+      })
+    )
+  );
 
-    let totalAmount = 0;
-    const orderItemsData = [];
+  let totalAmount = 0;
+  const orderItemsData = [];
 
-    for (let i = 0; i < products.length; i++) {
-      const item = products[i];
-      const variant = variantData[i];
+  for (let i = 0; i < products.length; i++) {
+    const item = products[i];
+    const variant = variantData[i];
 
-      if (!variant) {
-        throw new AppError(
-          404,
-          `Variant with ID ${item.variantId} for product ${item.productId} not found`
-        );
-      }
-
-      if (variant.stock < item.quantity) {
-        throw new AppError(
-          400,
-          `Insufficient stock for product ${variant.Product.name}`
-        );
-      }
-
-      variant.stock -= item.quantity;
-      await variant.save({ transaction: t });
-
-      const itemTotal = variant.price * item.quantity;
-      totalAmount += itemTotal;
-
-      orderItemsData.push({
-        productId: variant.productId,
-        variantId: variant.id,
-        sellerId: variant.Product.sellerId,
-        quantity: item.quantity,
-        unitPrice: variant.price,
-        totalPrice: itemTotal,
-      });
-    }
-
-    const order = await Order.create(
-      {
-        userId,
-        totalAmount,
-        addressId,
-        phoneNumber,
-        paymentStatus,
-      },
-      { transaction: t }
-    );
-
-    for (const item of orderItemsData) {
-      await OrderItem.create(
-        { ...item, orderId: order.id },
-        { transaction: t }
+    if (!variant) {
+      throw new AppError(
+        404,
+        `Variant with ID ${item.variantId} for product ${item.productId} not found`
       );
     }
 
-    await t.commit();
-    return order;
-  } catch (err) {
-    if (!t.finished) await t.rollback(); 
-    throw err;
+    if (variant.stock < item.quantity) {
+      throw new AppError(
+        400,
+        `Insufficient stock for product ${variant.Product.name}`
+      );
+    }
+
+    variant.stock -= item.quantity;
+    await variant.save({ transaction: t });
+
+    const itemTotal = variant.price * item.quantity;
+    totalAmount += itemTotal;
+
+    orderItemsData.push({
+      productId: variant.productId,
+      variantId: variant.id,
+      sellerId: variant.Product.sellerId,
+      quantity: item.quantity,
+      unitPrice: variant.price,
+      totalPrice: itemTotal,
+    });
   }
+
+  const order = await Order.create(
+    {
+      userId,
+      totalAmount,
+      addressId,
+      phoneNumber,
+      paymentStatus,
+    },
+    { transaction: t }
+  );
+
+  for (const item of orderItemsData) {
+    await OrderItem.create({ ...item, orderId: order.id }, { transaction: t });
+  }
+
+  return order;
 };
 
 export const findAllOrders = async (userId) => {
@@ -164,5 +155,3 @@ export const updateOrderDetailsService = async (reqBody, order) => {
   }
   await order.save();
 };
-
-

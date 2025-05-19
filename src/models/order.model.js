@@ -27,8 +27,8 @@ const Order = sequelize.define(
       allowNull: false,
     },
     paymentStatus: {
-      type: DataTypes.ENUM("pending", "completed", "failed"),
-      defaultValue: "pending",
+      type: DataTypes.ENUM("prepaid", "COD"),
+      defaultValue: "prepaid",
     },
   },
   {

@@ -12,13 +12,16 @@ import { findCartByUserId } from "../services/cart.service.js";
 import { fetchAddressById } from "../services/user.service.js";
 
 export const createOrder = async (req, res, next) => {
+  const t = await Order.sequelize.transaction();
   try {
-    const t = await Order.sequelize.transaction();
     const { addressId, phoneNumber, paymentStatus } = req.body;
     const userId = req.user.id;
     await fetchAddressById(addressId);
     // Question : DO I NEED TO VERIFY IF THE ADDRESS BELONGS TO THAT USER
     const cart = await findCartByUserId(userId);
+    if (cart.CartItems.length < 1) {
+      return responseHandler(res, 202, "No items in cart", {});
+    }
     const order = await createNewOrder(
       cart.CartItems,
       addressId,
@@ -27,13 +30,13 @@ export const createOrder = async (req, res, next) => {
       userId,
       t
     );
+    await t.commit();
+
     return responseHandler(res, 200, "Order placed successfully", {
       orderId: order.id,
     });
   } catch (error) {
-    if (!t.finished) {
-      await t.rollback();
-    }
+    await t.rollback();
     next(error);
   }
 };

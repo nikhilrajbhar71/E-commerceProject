@@ -9,7 +9,16 @@ export const findCartByUserId = async (userId) => {
     where: {
       userId,
     },
-    include: CartItem,
+    include: [
+      {
+        model: CartItem,
+        include: [
+          {
+            model: ProductVariant,
+          },
+        ],
+      },
+    ],
   });
   return cart;
 };
@@ -67,11 +76,16 @@ export const addItemsToCart = async (products, cart) => {
 };
 
 export const findCartIfExists = async (userId) => {
-  const cart = await findCartByUserId(userId);
+  let cart = await findCartByUserId(userId);
   if (!cart) {
     throw new AppError(404, "Cart not found");
   }
-  return cart;
+  let totalAmount = 0;
+  cart.CartItems.forEach((element) => {
+    totalAmount += element.ProductVariant.stock * element.quantity;
+  });
+  cart = cart.toJSON();
+  return { ...cart, totalAmount };
 };
 
 export const verifyCartOwnership = async (cartItem, userId) => {
