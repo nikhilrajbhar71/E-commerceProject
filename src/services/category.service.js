@@ -7,9 +7,6 @@ export const findCategoryByName = async (name) => {
   }
 };
 
-export const createNewCategory = async (name) => {
-  return await Category.create({ name });
-};
 
 export const getPaginatedCategories = async (page, limit) => {
   page = parseInt(page) || 1;
@@ -22,6 +19,3 @@ export const getPaginatedCategories = async (page, limit) => {
   });
 };
 
-export const deleteCategoryById = async (id) => {
-  return await Category.destroy({ where: { id } });
-};
