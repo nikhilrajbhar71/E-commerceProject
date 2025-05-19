@@ -204,8 +204,7 @@ export const deleteVariantService = async (variant, userId) => {
 };
 
 export const verifyVariantOwnership = (variant, userId) => {
-  console.log("variant" + JSON.stringify(variant));
-  console.log("user id " + JSON.stringify(userId));
+
   if (variant?.Product?.sellerId != userId) {
     throw new AppError(401, "Unauthorized", {});
   }

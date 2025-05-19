@@ -54,7 +54,6 @@ export const deleteItem = async (req, res, next) => {
   try {
     const cartItemId = req.params.id;
     const cartItem = await findCartItemIfExists(cartItemId);
-    console.log("cart item at line 53 " + JSON.stringify(cartItem));
     verifyCartOwnership(cartItem, req.user.id);
     await deleteCartItem(cartItemId);
     return responseHandler(res, 200, "Items deleted from cart", {});

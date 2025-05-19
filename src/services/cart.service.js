@@ -113,7 +113,6 @@ export const findCartItemIfExists = async (cartItemId) => {
     },
     include: Cart,
   });
-  console.log("cart item " + JSON.stringify(cartItem));
   if (!cartItem) {
     throw new AppError(404, "Cart item not found");
   }

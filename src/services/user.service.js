@@ -33,9 +33,7 @@ export const createUser = async (
   otp,
   otpExpiry
 ) => {
-  console.log(
-    "at user create funciton  and passord is " + JSON.stringify(password)
-  );
+ 
 
   const user = await User.create({
     name,
@@ -46,7 +44,6 @@ export const createUser = async (
     otp,
     otpExpiry,
   });
-  console.log("at user create funciton " + JSON.stringify(user));
   delete user.dataValues.password;
   return user;
 };
