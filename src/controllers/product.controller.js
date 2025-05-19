@@ -9,11 +9,13 @@ import {
   getProductWithVariant,
   updateProductService,
   updateProductStatus,
-  verifyProductOwnership,
 } from "../services/product.service.js";
 import ProductResource from "../resources/product.resource.js";
+import { sequelize } from "../config/db.js";
 
 export const createProduct = async (req, res, next) => {
+  const t = await sequelize.transaction();
+
   try {
     const {
       name,
@@ -29,10 +31,10 @@ export const createProduct = async (req, res, next) => {
 
     const sellerId = req.user.id;
     if (!req.file) {
-      return responseHandler(res, 400, "Banner image is required");
+      return responseHandler(res, 200, "Banner image is required", {});
     }
     const bannerImage = req.file.location;
-    const product = await createNewProduct({
+    const product = await createNewProduct(
       name,
       description,
       price,
@@ -42,8 +44,14 @@ export const createProduct = async (req, res, next) => {
       sellerId,
       isActive,
       isDeleted,
-    });
-    const productWithVariant = await createVariantService(variants, product);
+      t
+    );
+    const productWithVariant = await createVariantService(
+      variants,
+      product.id,
+      t
+    );
+    await t.commit();
     responseHandler(
       res,
       200,
@@ -51,6 +59,7 @@ export const createProduct = async (req, res, next) => {
       new ProductResource(productWithVariant).exec()
     );
   } catch (error) {
+    await t.rollback();
     next(error);
   }
 };

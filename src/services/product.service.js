@@ -10,7 +10,7 @@ import {
   allowedFieldsInVariants,
 } from "../config/constants.js";
 
-export const createNewProduct = async ({
+export const createNewProduct = async (
   name,
   description,
   price,
@@ -20,18 +20,22 @@ export const createNewProduct = async ({
   sellerId,
   isActive,
   isDeleted,
-}) => {
-  return await Product.create({
-    name,
-    description,
-    price,
-    rating,
-    bannerImage,
-    categoryId,
-    sellerId,
-    isActive,
-    isDeleted,
-  });
+  transaction,
+) => {
+  return await Product.create(
+    {
+      name,
+      description,
+      price,
+      rating,
+      bannerImage,
+      categoryId,
+      sellerId,
+      isActive,
+      isDeleted,
+    },
+    { transaction }
+  );
 };
 
 export const findProductByPk = async (id) => {
@@ -143,17 +147,24 @@ export const updateProductService = async (product, reqBody) => {
   await product.save();
 };
 
-export const createVariantService = async (variantsArray, productId) => {
+export const createVariantService = async (
+  variantsArray,
+  productId,
+  transaction
+) => {
   await Promise.all(
     variantsArray.map(({ color, size, price, stock, sku }) =>
-      ProductVariant.create({
-        productId,
-        color,
-        size,
-        price,
-        stock,
-        sku,
-      })
+      ProductVariant.create(
+        {
+          productId,
+          color,
+          size,
+          price,
+          stock,
+          sku,
+        },
+        { transaction }
+      )
     )
   );
 };
