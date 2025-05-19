@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import responseHandler from "../utils/responseHandler.js";
 import { jwtSignHelper } from "../utils/jwtSignHelper.js";
 import {
+  checkIfUserExists,
   createAddress,
   createUser,
   deleteAddressById,
@@ -13,14 +14,15 @@ import {
   findIfUserExists,
   findResetToken,
   findUserByEmail,
-  findUserByPk,
+  findUserByPhoneNumber,
   generateResetToken,
   hashPassword,
   markAllUserAddressesAsNonDefault,
-  matchOTP,
   setAddressAsDefault,
+  setUserAsVerified,
   updateAddressById,
-  verifyAddressOwnership,
+  updateUserData,
+  verifyOTP,
 } from "../services/user.service.js";
 
 import { sendResetEmail } from "../utils/sendResetEmail.js";
@@ -29,32 +31,49 @@ import UserResource from "../resources/user.resource.js";
 import { generateOTP } from "../utils/generateOTP.js";
 import { sendOTP } from "../utils/sendSMS.js";
 
-import {
-  cacheUserOTPInRedis,
-  deleteOTPFromRedis,
-  fetchUserDataFromRedis,
-} from "../services/redis.service.js";
 import AddressResource from "../resources/address.resource.js";
 
 export const userRegisterRequest = async (req, res, next) => {
   try {
     const { email, password, role, name, phoneNumber } = req.body;
-    const existingUser = await findUserByEmail(email);
-    if (existingUser) {
-      return responseHandler(res, 202, "Email already exists", {});
+
+    const existingUser = await findUserByPhoneNumber(phoneNumber);
+    if (existingUser && existingUser.isVerified == true) {
+      return responseHandler(
+        res,
+        202,
+        "Phone number already registered,Please sign up!",
+        {}
+      );
     }
 
-    const otp = generateOTP();
+    const { otp, otpExpiry } = generateOTP();
 
     const hashedPassword = await hashPassword(password);
-    const userData = JSON.stringify({
-      name,
-      email,
-      password: hashedPassword,
-      role,
-      otp,
-    });
-    await cacheUserOTPInRedis(phoneNumber, userData);
+
+    if (existingUser) {
+      // if user hasn't been verified but has sent otp once, we will update his details
+      await updateUserData(
+        name,
+        email,
+        hashedPassword,
+        role,
+        phoneNumber,
+        otp,
+        otpExpiry
+      );
+    } else {
+      await createUser(
+        name,
+        email,
+        hashedPassword,
+        role,
+        phoneNumber,
+        otp,
+        otpExpiry
+      );
+    }
+
     await sendOTP(phoneNumber, otp);
 
     return responseHandler(res, 200, "OTP sent successfully");
@@ -67,18 +86,13 @@ export const userRegisterVerify = async (req, res, next) => {
   try {
     const { phoneNumber, otp } = req.body;
 
-    const {
-      name,
-      email,
-      password,
-      role,
-      otp: storedOtp,
-    } = await fetchUserDataFromRedis(phoneNumber);
+    const user = await checkIfUserExists(phoneNumber);
 
-    matchOTP(otp, storedOtp);
+    verifyOTP(otp, user.otp, user.otpExpiry);
 
-    await createUser(name, email, password, role, phoneNumber);
-    await deleteOTPFromRedis(phoneNumber);
+    //  this will set user.isVerified = true and remote the otp from user table
+
+    await setUserAsVerified(user);
 
     return responseHandler(res, 200, "User registered successfully", {});
   } catch (error) {
@@ -91,7 +105,7 @@ export const userLogin = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await findUserByEmail(email);
 
-    if (!user) {
+    if (!user || !user.isVerified) {
       return responseHandler(res, 404, "User doesn't exist, please sign up.");
     }
 
@@ -248,7 +262,7 @@ export const updateAddress = async (req, res, next) => {
   try {
     const addressId = req.params.id;
     const incomingData = req.body;
-    await updateAddressById(incomingData, addressId,req.user.id);
+    await updateAddressById(incomingData, addressId, req.user.id);
     return responseHandler(res, 200, "Address updated successfully", {});
   } catch (error) {
     next(error);

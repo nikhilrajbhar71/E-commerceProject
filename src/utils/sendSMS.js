@@ -7,7 +7,7 @@ export const sendOTP = async (phoneNumber, OTP) => {
 
   await client.messages
     .create({
-      body: `Hello, your OTP for registration is ${OTP}`,
+      body: `Hello, your OTP for registration is ${OTP}. It is valid for 5 minutes.`,
       from: "+18645484155",
       to: phoneNumber,
     })

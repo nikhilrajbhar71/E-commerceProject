@@ -25,11 +25,25 @@ const User = sequelize.define(
     phoneNumber: {
       type: DataTypes.STRING(20),
       allowNull: false,
+      unique: true,
     },
     role: {
       type: DataTypes.ENUM("seller", "customer"),
       allowNull: false,
       defaultValue: "customer",
+    },
+    otp: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+    },
+    otpExpiry: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
   },
   {

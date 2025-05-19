@@ -3,7 +3,6 @@ import PasswordResetToken from "../models/passwordResetToken.model.js";
 import AppError from "../utils/AppError.js";
 import { Op } from "sequelize";
 import bcrypt from "bcrypt";
-import redisClient from "../utils/redisClient.js";
 import Address from "../models/address.model.js";
 import { allowedAddressFields } from "../config/constants.js";
 
@@ -12,14 +11,42 @@ export const findUserByEmail = async (email) => {
 
   return user;
 };
-export const createUser = async (name, email, password, role, phoneNumber) => {
+
+export const checkIfUserExists = async (phoneNumber) => {
+  const user = await User.findOne({ where: { phoneNumber } });
+
+  if (!user) {
+    throw new AppError(404, "User not found");
+  }
+  return user;
+};
+export const findUserByPhoneNumber = async (phoneNumber) => {
+  const user = await User.findOne({ where: { phoneNumber } });
+  return user;
+};
+export const createUser = async (
+  name,
+  email,
+  password,
+  role,
+  phoneNumber,
+  otp,
+  otpExpiry
+) => {
+  console.log(
+    "at user create funciton  and passord is " + JSON.stringify(password)
+  );
+
   const user = await User.create({
     name,
     email,
     password,
     role,
     phoneNumber,
+    otp,
+    otpExpiry,
   });
+  console.log("at user create funciton " + JSON.stringify(user));
   delete user.dataValues.password;
   return user;
 };
@@ -105,9 +132,14 @@ export const updateAddressById = async (incomingData, addressId, userId) => {
   await address.save();
 };
 
-export const matchOTP = (otp, storedOtp) => {
-  if (otp !== storedOtp) {
-    throw new AppError(200, "OTP did not match");
+export const verifyOTP = (inputOtp, storedOtp, expiryTime) => {
+  if (inputOtp !== storedOtp) {
+    throw new AppError(202, "Entered OTP is incorrect");
+  }
+
+  const now = new Date();
+  if (now > new Date(expiryTime)) {
+    throw new AppError(202, "OTP has expired");
   }
 };
 
@@ -140,4 +172,35 @@ export const verifyAddressOwnership = async (addressId, userId) => {
   if (address.userId != userId) {
     throw new AppError(401, "Unauthorized");
   }
+};
+export const updateUserData = async (
+  name,
+  email,
+  hashedPassword,
+  role,
+  phoneNumber,
+  otp,
+  otpExpiry
+) => {
+  await User.update(
+    {
+      name,
+      email,
+      hashedPassword,
+      role,
+      otp,
+      otpExpiry,
+    },
+    {
+      where: {
+        phoneNumber,
+      },
+    }
+  );
+};
+
+export const setUserAsVerified = async (user) => {
+  user.otp = "";
+  user.isVerified = true;
+  await user.save();
 };
