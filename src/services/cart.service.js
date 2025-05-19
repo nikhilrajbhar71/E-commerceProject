@@ -1,5 +1,6 @@
 import Cart from "../models/cart.model.js";
 import CartItem from "../models/cartItem.model.js";
+import ProductVariant from "../models/productVariant.model.js";
 import AppError from "../utils/AppError.js";
 import { findProductByPk } from "./product.service.js";
 
@@ -35,7 +36,16 @@ export const checkIfVariantExistsInCart = async (
 };
 export const addItemsToCart = async (products, cart) => {
   for (const element of products) {
+    // check if product exits in db
     await findProductByPk(element.productId);
+    // check if variants exists
+    const variant = await checkIfVariantExists(
+      element.productId,
+      element.variantId
+    );
+    if (variant.stock < element.quantity) {
+      throw new AppError(202, "Out of stock");
+    }
     const variantAlreadyExists = await checkIfVariantExistsInCart(
       element.productId,
       element.variantId,
@@ -101,4 +111,17 @@ export const deleteCartItem = async (cartItemId) => {
       id: cartItemId,
     },
   });
+};
+
+export const checkIfVariantExists = async (productId, id) => {
+  const variant = await ProductVariant.findOne({
+    where: {
+      productId,
+      id,
+    },
+  });
+  if (!variant) {
+    throw new AppError(404, "variant not found");
+  }
+  return variant;
 };
