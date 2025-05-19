@@ -81,20 +81,13 @@ export const createNewOrder = async (
 
   return order;
 };
-
 export const findAllOrders = async (userId) => {
   const orders = await Order.findAll({
-    where: {
-      userId,
-    },
+    where: { userId },
     include: [
       {
         model: OrderItem,
-        include: [
-          {
-            model: Product,
-          },
-        ],
+        include: [{ model: Product }, { model: ProductVariant }],
       },
     ],
     order: [["createdAt", "DESC"]],

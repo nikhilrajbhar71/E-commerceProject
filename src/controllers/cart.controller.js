@@ -31,7 +31,7 @@ export const getCart = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const cart = await findCartIfExists(userId);
-    return responseHandler(res, 200, "Items added to the cart", cart);
+    return responseHandler(res, 200, "Fetched cart items", cart);
   } catch (error) {
     next(error);
   }
