@@ -153,8 +153,9 @@ export const createVariantService = async (
   transaction
 ) => {
   await Promise.all(
-    variantsArray.map(({ color, size, price, stock, sku }) =>
-      ProductVariant.create(
+    variantsArray.map(async ({ color, size, price, stock, sku }) => {
+      await checkIfVariantExists(size, color, productId);
+      return ProductVariant.create(
         {
           productId,
           color,
@@ -164,10 +165,11 @@ export const createVariantService = async (
           sku,
         },
         { transaction }
-      )
-    )
+      );
+    })
   );
 };
+
 
 export const findAllVariants = async (productId) => {
   return await ProductVariant.findAll({ where: { productId } });

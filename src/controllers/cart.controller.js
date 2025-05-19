@@ -38,18 +38,27 @@ export const getCart = async (req, res, next) => {
 };
 
 export const updateItemsCount = async (req, res, next) => {
-  const { cartItemId, operation } = req.body;
-  const cartItem = await findCartItemIfExists(cartItemId);
-  verifyCartOwnership(cartItem, req.user.id);
-  await updateItemCountService(operation, cartItem);
+  try {
+    const { cartItemId, operation } = req.body;
+    const cartItem = await findCartItemIfExists(cartItemId);
+    verifyCartOwnership(cartItem, req.user.id);
+    await updateItemCountService(operation, cartItem);
 
-  return responseHandler(res, 200, "Items updated in the cart", {});
+    return responseHandler(res, 200, "Items updated in the cart", {});
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const deleteItem = async (req, res) => {
+export const deleteItem = async (req, res, next) => {
   try {
     const cartItemId = req.params.id;
+    const cartItem = await findCartItemIfExists(cartItemId);
+    console.log("cart item at line 53 " + JSON.stringify(cartItem));
+    verifyCartOwnership(cartItem, req.user.id);
     await deleteCartItem(cartItemId);
-    return responseHandler(res, 200, "Items updated in the cart", {});
-  } catch (error) {}
+    return responseHandler(res, 200, "Items deleted from cart", {});
+  } catch (error) {
+    next(error);
+  }
 };

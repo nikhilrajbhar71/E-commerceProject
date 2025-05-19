@@ -15,19 +15,18 @@ export const createVariant = async (req, res, next) => {
   try {
     const { id } = req.params;
     // TODO : user can send whole array of variants, as adding one by one would be irritating.
-    const { color, size, price, stock, sku } = req.body;
+    const { variants } = req.body;
     const product = await findProductByPkAndUserId(id, req.user.id);
-    await checkIfVariantExists(size, color, product.id);
     // we are already creating an array, we just need to change the input format, then we can directly use array
-    const variants = [
-      {
-        color,
-        size,
-        price,
-        stock,
-        sku,
-      },
-    ];
+    // const variants = [
+    //   {
+    //     color,
+    //     size,
+    //     price,
+    //     stock,
+    //     sku,
+    //   },
+    // ];
     await createVariantService(variants, product.id);
 
     return responseHandler(res, 200, "Variant added successfully", {});

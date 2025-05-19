@@ -2,7 +2,6 @@ import Order from "../models/order.model.js";
 import Product from "../models/product.model.js";
 import OrderItem from "../models/orderItem.model.js";
 import AppError from "../utils/AppError.js";
-import User from "../models/user.model.js";
 import { updatableOrderFields } from "../config/constants.js";
 import { sequelize } from "../config/db.js";
 import ProductVariant from "../models/productVariant.model.js";
