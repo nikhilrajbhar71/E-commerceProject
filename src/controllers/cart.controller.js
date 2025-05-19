@@ -5,6 +5,7 @@ import {
   findCartByUserId,
   findCartIfExists,
   findCartItemIfExists,
+  findOrCreateCart,
   updateItemCountService,
   verifyCartOwnership,
 } from "../services/cart.service.js";
@@ -15,11 +16,9 @@ export const addItems = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const products = req.body.products;
-    //  we will create cart right away , if cart doesn't exit.
-    let cart = await findCartByUserId(userId);
-    if (!cart) {
-      cart = await createCart(userId);
-    }
+    //  we will create cart right away , if cart doesn't exist.
+    console.log("user id " + JSON.stringify(userId));
+    const cart = await findOrCreateCart(userId);
     await addItemsToCart(products, cart);
     return responseHandler(res, 200, "Items added to the cart", {});
   } catch (error) {

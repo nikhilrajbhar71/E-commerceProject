@@ -139,3 +139,14 @@ export const checkIfVariantExists = async (productId, id) => {
   }
   return variant;
 };
+
+export const findOrCreateCart = async (userId) => {
+  // returns an array of two element, if found/created created and second variable is a boolen is created then true otherwise false
+  const [cart] = await Cart.findOrCreate({
+    where: {
+      userId,
+    },
+  });
+
+  return cart;
+};
