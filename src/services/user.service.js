@@ -20,9 +20,16 @@ export const checkIfUserExists = async (phoneNumber) => {
   }
   return user;
 };
+
+export const checkIfUserExistsByEmail = async (email) => {
+  const user = await User.findOne({ where: { email } });
+
+  if (!user) {
+    throw new AppError(404, "User not found");
+  }
+};
 export const findUserByPhoneNumber = async (phoneNumber) => {
-  const user = await User.findOne({ where: { phoneNumber } });
-  return user;
+  return await User.findOne({ where: { phoneNumber } });
 };
 export const createUser = async (
   name,
@@ -33,8 +40,6 @@ export const createUser = async (
   otp,
   otpExpiry
 ) => {
- 
-
   const user = await User.create({
     name,
     email,
@@ -90,8 +95,7 @@ export const findResetToken = async (token) => {
 
 export const hashPassword = async (password) => {
   const saltRounds = 10;
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
-  return hashedPassword;
+  return await bcrypt.hash(password, saltRounds);
 };
 
 export const createAddress = async (address, userId) => {

@@ -5,6 +5,7 @@ import responseHandler from "../utils/responseHandler.js";
 import { jwtSignHelper } from "../utils/jwtSignHelper.js";
 import {
   checkIfUserExists,
+  checkIfUserExistsByEmail,
   createAddress,
   createUser,
   deleteAddressById,
@@ -38,7 +39,7 @@ export const userRegisterRequest = async (req, res, next) => {
     const { email, password, role, name, phoneNumber } = req.body;
 
     const existingUser = await findUserByPhoneNumber(phoneNumber);
-    if (existingUser && existingUser.isVerified == true) {
+    if (existingUser && existingUser?.isVerified == true) {
       return responseHandler(
         res,
         202,
@@ -105,7 +106,7 @@ export const userLogin = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await findUserByEmail(email);
 
-    if (!user || !user.isVerified) {
+    if (!user || !user?.isVerified) {
       return responseHandler(res, 404, "User doesn't exist, please sign up.");
     }
 
@@ -173,8 +174,8 @@ export const deleteUserProfile = async (req, res, next) => {
 export const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
-
-    await findUserByEmail(email);
+    // only proceed if email exists in our db
+    await checkIfUserExistsByEmail(email);
 
     const token = crypto.randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + 3600000);
@@ -222,8 +223,11 @@ export const addAddress = async (req, res, next) => {
       country,
     };
 
-    const newAddress = await createAddress(address, userId);
-    const addressCount = await fetchAddressCount(userId);
+    const [newAddress, addressCount] = await Promise.all([
+      createAddress(address, userId),
+      fetchAddressCount(userId),
+    ]);
+
     if (addressCount == 1) {
       await setAddressAsDefault(newAddress.id);
     }

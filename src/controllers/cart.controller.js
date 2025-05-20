@@ -17,7 +17,6 @@ export const addItems = async (req, res, next) => {
     const userId = req.user.id;
     const products = req.body.products;
     //  we will create cart right away , if cart doesn't exist.
-    console.log("user id " + JSON.stringify(userId));
     const cart = await findOrCreateCart(userId);
     await addItemsToCart(products, cart);
     return responseHandler(res, 200, "Items added to the cart", {});

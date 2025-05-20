@@ -4,7 +4,6 @@ import {
   createVariantService,
   deleteProductById,
   fetchAllProducts,
-  findProductByPk,
   findProductByPkAndUserId,
   getProductWithVariant,
   updateProductService,
@@ -67,6 +66,7 @@ export const createProduct = async (req, res, next) => {
 export const updateStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
+   // TODO : we can do this in a single db call
     await findProductByPkAndUserId(id, req.user.id);
     await updateProductStatus(id);
 
@@ -78,6 +78,7 @@ export const updateStatus = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
   try {
+    //we can combine this alsos
     await findProductByPkAndUserId(req.params.id, req.user.id);
 
     await deleteProductById(req.params.id);

@@ -20,8 +20,8 @@ import { validateUserRegisterVerify } from "../middleware/validators/users/valid
 
 const router = express.Router();
 
-router.post("/register-request", validateUserRegister, userRegisterRequest);
-router.post("/register-verify", validateUserRegisterVerify, userRegisterVerify);
+router.post("/send-otp", validateUserRegister, userRegisterRequest);
+router.post("/verify-otp", validateUserRegisterVerify, userRegisterVerify);
 router.post("/login", validateUserLogin, userLogin);
 router.get("/refresh", verifyRefreshToken, refreshToken);
 router.get("/:id", validateGetProduct, getUserProfile);
