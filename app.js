@@ -7,6 +7,7 @@ import variantRoutes from "./src/routes/variants.routes.js";
 import cartRoutes from "./src/routes/cart.routes.js";
 import wishlistRoutes from "./src/routes/wishlist.routes.js";
 import reviewRoutes from "./src/routes/review.routes.js";
+import homepageRoutes from "./src/routes/homepage.routes.js";
 import dotenv from "dotenv";
 import errorMiddleware from "./src/middleware/errorMiddleware.js";
 import cookieParser from "cookie-parser";
@@ -25,6 +26,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/carts", cartRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/review", reviewRoutes);
+app.use("/api/homepage",homepageRoutes);
 app.use(errorMiddleware);
 
 export default app;

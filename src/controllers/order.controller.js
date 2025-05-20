@@ -10,6 +10,7 @@ import {
 import Order from "../models/order.model.js";
 import { findCartByUserId } from "../services/cart.service.js";
 import { fetchAddressById } from "../services/user.service.js";
+import OrderResource from "../resources/order.resource.js";
 
 export const createOrder = async (req, res, next) => {
   const t = await Order.sequelize.transaction();
@@ -45,7 +46,12 @@ export const getAllOrders = async (req, res, next) => {
   try {
     const orders = await findAllOrders(req.user.id);
 
-    return responseHandler(res, 200, "Fetched order successfully", orders);
+    return responseHandler(
+      res,
+      200,
+      "Fetched order successfully",
+      OrderResource.collection(orders)
+    );
   } catch (error) {
     next(error);
   }
@@ -55,7 +61,12 @@ export const getOrderById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const order = await findOrderById(id);
-    return responseHandler(res, 200, "Order fetched successfully", order);
+    return responseHandler(
+      res,
+      200,
+      "Order fetched successfully",
+      new OrderResource(order).exec()
+    );
   } catch (error) {
     next(error);
   }

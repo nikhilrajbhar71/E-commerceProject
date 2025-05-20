@@ -78,7 +78,7 @@ export const updateStatus = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
   try {
-    //we can combine this alsos
+    //we can combine this also
     await findProductByPkAndUserId(req.params.id, req.user.id);
 
     await deleteProductById(req.params.id);

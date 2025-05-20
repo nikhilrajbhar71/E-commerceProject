@@ -12,7 +12,7 @@ import { validateOrderId } from "../middleware/validators/orders/validatorOrderI
 
 const router = express.Router();
 // validateOrderCreation,
-router.post("/", authenticateUser, createOrder);
+router.post("/", validateOrderCreation, authenticateUser, createOrder);
 
 router.get("/:id", validateOrderId, authenticateUser, getOrderById);
 router.get("/", authenticateUser, getAllOrders);

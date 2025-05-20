@@ -1,11 +1,11 @@
 import Cart from "../models/cart.model.js";
 import CartItem from "../models/cartItem.model.js";
+import Product from "../models/product.model.js";
 import ProductVariant from "../models/productVariant.model.js";
 import AppError from "../utils/AppError.js";
 import { findProductByPk } from "./product.service.js";
-
 export const findCartByUserId = async (userId) => {
-  const cart = await Cart.findOne({
+  return await Cart.findOne({
     where: {
       userId,
     },
@@ -16,11 +16,13 @@ export const findCartByUserId = async (userId) => {
           {
             model: ProductVariant,
           },
+          {
+            model: Product,
+          },
         ],
       },
     ],
   });
-  return cart;
 };
 
 export const createCart = async (userId) => {
@@ -141,7 +143,7 @@ export const checkIfVariantExists = async (productId, id) => {
 };
 
 export const findOrCreateCart = async (userId) => {
-  // returns an array of two element, if found/created created and second variable is a boolen is created then true otherwise false
+  // returns an array of two element,[cart,created] where created is a boolean if new item is created
   const [cart] = await Cart.findOrCreate({
     where: {
       userId,

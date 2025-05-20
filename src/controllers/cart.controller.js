@@ -1,8 +1,7 @@
+import CartResource from "../resources/cart.resource.js";
 import {
   addItemsToCart,
-  createCart,
   deleteCartItem,
-  findCartByUserId,
   findCartIfExists,
   findCartItemIfExists,
   findOrCreateCart,
@@ -16,7 +15,7 @@ export const addItems = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const products = req.body.products;
-    //  we will create cart right away , if cart doesn't exist.
+    //  we will create cart right away, if cart doesn't exist.
     const cart = await findOrCreateCart(userId);
     await addItemsToCart(products, cart);
     return responseHandler(res, 200, "Items added to the cart", {});
@@ -29,7 +28,12 @@ export const getCart = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const cart = await findCartIfExists(userId);
-    return responseHandler(res, 200, "Fetched cart items", cart);
+    return responseHandler(
+      res,
+      200,
+      "Fetched cart items",
+      new CartResource(cart).exec()
+    );
   } catch (error) {
     next(error);
   }

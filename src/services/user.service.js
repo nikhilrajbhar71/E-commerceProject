@@ -103,12 +103,11 @@ export const createAddress = async (address, userId) => {
 };
 
 export const findAllAddresses = async (userId) => {
-  const addresses = await Address.findAll({
+  return await Address.findAll({
     where: {
       userId,
     },
   });
-  return addresses;
 };
 
 export const deleteAddressById = async (addressId, userId) => {

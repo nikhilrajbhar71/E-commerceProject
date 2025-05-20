@@ -82,7 +82,7 @@ export const createNewOrder = async (
   return order;
 };
 export const findAllOrders = async (userId) => {
-  const orders = await Order.findAll({
+  return await Order.findAll({
     where: { userId },
     include: [
       {
@@ -92,52 +92,40 @@ export const findAllOrders = async (userId) => {
     ],
     order: [["createdAt", "DESC"]],
   });
-
-  return orders;
 };
 
 export const findOrderById = async (id) => {
-  const order = await Order.findByPk(id, {
+  return await Order.findByPk(id, {
     include: [
       {
         model: OrderItem,
-        include: [
-          {
-            model: Product,
-          },
-        ],
+        include: [{ model: Product }, { model: ProductVariant }],
       },
     ],
   });
-  return order;
 };
 
 export const deleteOrderById = async (id) => {
   const transaction = await sequelize.transaction();
 
-  try {
-    const order = await Order.findByPk(id, {
-      include: [{ model: OrderItem }],
-      transaction,
-    });
-    for (const item of order.OrderItems) {
-      const product = await Product.findByPk(item.productId, { transaction });
+  const order = await Order.findByPk(id, {
+    include: [{ model: OrderItem }],
+    transaction,
+  });
+  for (const item of order.OrderItems) {
+    const product = await Product.findByPk(item.productId, { transaction });
 
-      if (product) {
-        product.stock += item.quantity;
-        await product.save({ transaction });
-      }
-
-      await item.destroy({ transaction });
+    if (product) {
+      product.stock += item.quantity;
+      await product.save({ transaction });
     }
 
-    await order.destroy({ transaction });
-
-    await transaction.commit();
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
+    await item.destroy({ transaction });
   }
+
+  await order.destroy({ transaction });
+
+  await transaction.commit();
 };
 
 export const updateOrderDetailsService = async (reqBody, order) => {

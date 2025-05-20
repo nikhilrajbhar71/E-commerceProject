@@ -27,7 +27,7 @@ const PasswordResetToken = sequelize.define(
   },
   {
     timestamps: true,
-    updatedAt: false, // You can enable this if needed
+    updatedAt: false, 
   }
 );
 

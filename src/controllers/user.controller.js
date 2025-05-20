@@ -227,8 +227,7 @@ export const addAddress = async (req, res, next) => {
       createAddress(address, userId),
       fetchAddressCount(userId),
     ]);
-
-    if (addressCount == 1) {
+    if (addressCount == 0) {
       await setAddressAsDefault(newAddress.id);
     }
     return responseHandler(res, 200, "Address added successfully", {});
