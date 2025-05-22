@@ -19,13 +19,11 @@ export const getHomePage = async (req, res, next) => {
       return responseHandler(res, 200, "Home page data ", cachedData);
     }
 
-    const products = await fetchProductForHomePage(30);
-    const categories = await getPaginatedCategories(1, 30);
-
     const homepageData = {
-      products,
-      categories,
+      products: await fetchProductForHomePage(30),
+      categories: await getPaginatedCategories(1, 30),
     };
+
     await cacheDataInRedis(cacheKeyForHomePage, homepageData, 600);
     return responseHandler(res, 200, "Home page data", homepageData);
   } catch (error) {
