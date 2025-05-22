@@ -80,12 +80,15 @@ export const getFilteredProducts = async (
   recent,
   userId,
   page = 1,
-  limit = 20
+  limit = 20,
+  search
 ) => {
   const where = {};
   const variantWhere = {};
   let recentIds = null;
-
+  if (search) {
+    where.name = { [Op.like]: `%${search}%` };
+  }
   // Add recently viewed filter
   if (recent == "true" && userId) {
     const key = `recently_viewed:${userId}`;
@@ -147,9 +150,9 @@ export const getFilteredProducts = async (
 
   return {
     products,
-    total: finalProducts.length,
+    total: products.length,
     page: parseInt(page),
-    totalPages: Math.ceil(finalProducts.length / limit),
+    totalPages: Math.ceil(products.length / limit),
   };
 };
 

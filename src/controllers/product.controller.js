@@ -102,6 +102,7 @@ export const getAllProducts = async (req, res, next) => {
       recent,
       page = 1,
       limit = 20,
+      search
     } = req.query;
 
     const product = await getFilteredProducts(
@@ -114,7 +115,8 @@ export const getAllProducts = async (req, res, next) => {
       recent,
       req.user?.id,
       page,
-      limit
+      limit,
+      search
     );
 
     return responseHandler(res, 200, "All products fetched successfully", {
