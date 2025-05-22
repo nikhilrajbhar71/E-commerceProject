@@ -20,7 +20,7 @@ export const createNewProduct = async (
   sellerId,
   isActive,
   isDeleted,
-  transaction,
+  transaction
 ) => {
   return await Product.create(
     {
@@ -170,7 +170,6 @@ export const createVariantService = async (
   );
 };
 
-
 export const findAllVariants = async (productId) => {
   return await ProductVariant.findAll({ where: { productId } });
 };
@@ -204,7 +203,6 @@ export const deleteVariantService = async (variant, userId) => {
 };
 
 export const verifyVariantOwnership = (variant, userId) => {
-
   if (variant?.Product?.sellerId != userId) {
     throw new AppError(401, "Unauthorized", {});
   }
@@ -217,4 +215,8 @@ export const updateVariantService = async (variant, reqBody) => {
     }
   }
   await variant.save();
+};
+
+export const fetchProductForHomePage = async (limit) => {
+  return await Product.findAll({ limit });
 };
