@@ -1,6 +1,5 @@
 import { Sequelize } from "sequelize";
 import AppError from "../utils/AppError.js";
-import ProductResource from "../resources/product.resource.js";
 
 import Product from "../models/product.model.js";
 import { Op } from "sequelize";
@@ -9,6 +8,8 @@ import {
   allowedFieldsInProducts,
   allowedFieldsInVariants,
 } from "../config/constants.js";
+import redisClient from "../utils/redisClient.js";
+import RecentlyViewed from "../models/recentlyViewed.model.js";
 
 export const createNewProduct = async (
   name,
@@ -69,47 +70,86 @@ export const deleteProductById = async (id) => {
   await Product.update({ isDeleted: true }, { where: { id } });
 };
 
-export const fetchAllProducts = async (
-  page,
-  limit,
+export const getFilteredProducts = async (
   category,
-  seller,
+  size,
+  color,
   minPrice,
-  maxPrice
+  maxPrice,
+  sort,
+  recent,
+  userId,
+  page = 1,
+  limit = 20
 ) => {
-  page = parseInt(page) || 1;
-  limit = parseInt(limit) || 10;
-  const offset = (page - 1) * limit;
+  const where = {};
+  const variantWhere = {};
+  let recentIds = null;
 
-  const whereCondition = {
-    isActive: true,
-    isDeleted: false,
-  };
+  // Add recently viewed filter
+  if (recent == "true" && userId) {
+    const key = `recently_viewed:${userId}`;
+    recentIds = await redisClient.lRange(key, 0, 19);
 
-  if (category) whereCondition.categoryId = category;
-  if (seller) whereCondition.sellerId = seller;
+    if (!recentIds || recentIds.length === 0) {
+      const fallback = await RecentlyViewed.findAll({
+        where: { userId },
+        order: [["viewedAt", "DESC"]],
+        limit: 20,
+      });
+      recentIds = fallback.map((view) => view.productId);
 
-  if (minPrice || maxPrice) {
-    whereCondition.price = {};
-    if (minPrice) whereCondition.price[Op.gte] = parseFloat(minPrice);
-    if (maxPrice) whereCondition.price[Op.lte] = parseFloat(maxPrice);
+      if (recentIds.length > 0) {
+        await redisClient.del(key);
+        await redisClient.rPush(key, ...recentIds);
+      }
+    }
+
+    where.id = { [Op.in]: recentIds };
   }
 
-  const totalCount = await Product.count({ where: whereCondition });
-  const totalPages = Math.ceil(totalCount / limit);
+  // Category filter
+  if (category) {
+    where.categoryId = category;
+  }
+
+  // Price filter
+  if (minPrice || maxPrice) {
+    where.price = {};
+    if (minPrice) where.price[Op.gte] = parseFloat(minPrice);
+    if (maxPrice) where.price[Op.lte] = parseFloat(maxPrice);
+  }
+
+  // Variant filters
+  if (size) variantWhere.size = size;
+  if (color) variantWhere.color = color;
+
+  // Sorting
+  let order = [["createdAt", "DESC"]];
+  if (sort === "price_asc") order = [["price", "ASC"]];
+  if (sort === "price_desc") order = [["price", "DESC"]];
+
+  const offset = (parseInt(page) - 1) * parseInt(limit);
 
   const products = await Product.findAll({
-    limit,
+    where,
+    include: [
+      {
+        model: ProductVariant,
+        as: "variants",
+        where: variantWhere,
+      },
+    ],
+    order,
+    limit: parseInt(limit),
     offset,
-    where: whereCondition,
-
-    order: [["createdAt", "DESC"]],
   });
 
   return {
-    products: ProductResource.collection(products),
-    currentPage: page,
-    totalPages,
+    products,
+    total: finalProducts.length,
+    page: parseInt(page),
+    totalPages: Math.ceil(finalProducts.length / limit),
   };
 };
 

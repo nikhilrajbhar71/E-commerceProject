@@ -3,14 +3,15 @@ import {
   createNewProduct,
   createVariantService,
   deleteProductById,
-  fetchAllProducts,
   findProductByPkAndUserId,
+  getFilteredProducts,
   getProductWithVariant,
   updateProductService,
   updateProductStatus,
 } from "../services/product.service.js";
 import ProductResource from "../resources/product.resource.js";
 import { sequelize } from "../config/db.js";
+import { trackRecentlyViewed } from "../utils/trackRecentlyViewed.js";
 
 export const createProduct = async (req, res, next) => {
   const t = await sequelize.transaction();
@@ -66,7 +67,7 @@ export const createProduct = async (req, res, next) => {
 export const updateStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
-   // TODO : we can do this in a single db call
+    // TODO : we can do this in a single db call
     await findProductByPkAndUserId(id, req.user.id);
     await updateProductStatus(id);
 
@@ -91,15 +92,29 @@ export const deleteProduct = async (req, res, next) => {
 
 export const getAllProducts = async (req, res, next) => {
   try {
-    let { page, limit, category, seller, minPrice, maxPrice } = req.query;
-    // Question : Do we need to send product variant with all products as it would increase the load on query + data
-    const product = await fetchAllProducts(
-      page,
-      limit,
+    const {
       category,
-      seller,
+      size,
+      color,
       minPrice,
-      maxPrice
+      maxPrice,
+      sort,
+      recent,
+      page = 1,
+      limit = 20,
+    } = req.query;
+
+    const product = await getFilteredProducts(
+      category,
+      size,
+      color,
+      minPrice,
+      maxPrice,
+      sort,
+      recent,
+      req.user?.id,
+      page,
+      limit
     );
 
     return responseHandler(res, 200, "All products fetched successfully", {
@@ -114,6 +129,9 @@ export const getProduct = async (req, res, next) => {
   try {
     const productId = req.params.id;
     const product = await getProductWithVariant(productId);
+    if (req.user) {
+      await trackRecentlyViewed(req.user.id, productId);
+    }
 
     return responseHandler(
       res,
@@ -139,4 +157,3 @@ export const updateProduct = async (req, res, next) => {
     next(error);
   }
 };
-
