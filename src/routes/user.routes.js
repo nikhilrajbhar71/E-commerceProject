@@ -31,7 +31,12 @@ router.get("/:id", validateUserId, getUserProfile);
 router.delete("/", authenticateUser, deleteUserProfile);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
-router.get("/change-password", validateChangePassword, authenticateUser,changePassword);
+router.post(
+  "/change-password",
+  validateChangePassword,
+  authenticateUser,
+  changePassword
+);
 router.use("/address", addressRouter);
 
 export default router;
