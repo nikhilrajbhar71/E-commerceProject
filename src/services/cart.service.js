@@ -36,14 +36,13 @@ export const checkIfVariantExistsInCart = async (
   variantId,
   cartId
 ) => {
-  const variant = await CartItem.findOne({
+  return await CartItem.findOne({
     where: {
       productId,
       variantId,
       cartId,
     },
   });
-  return variant;
 };
 export const addItemsToCart = async (products, cart) => {
   for (const element of products) {

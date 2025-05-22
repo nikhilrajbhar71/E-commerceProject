@@ -16,6 +16,7 @@ import {
   findResetToken,
   findUserByEmail,
   findUserByPhoneNumber,
+  findUserByPk,
   generateResetToken,
   hashPassword,
   markAllUserAddressesAsNonDefault,
@@ -23,6 +24,7 @@ import {
   setUserAsVerified,
   updateAddressById,
   updateUserData,
+  updateUserPassword,
   verifyOTP,
 } from "../services/user.service.js";
 
@@ -33,6 +35,7 @@ import { generateOTP } from "../utils/generateOTP.js";
 import { sendOTP } from "../utils/sendSMS.js";
 
 import AddressResource from "../resources/address.resource.js";
+import { response } from "express";
 
 export const userRegisterRequest = async (req, res, next) => {
   try {
@@ -279,6 +282,25 @@ export const setAddressToDefault = async (req, res, next) => {
     await markAllUserAddressesAsNonDefault(userId);
     await setAddressAsDefault(newDefaultId);
     return responseHandler(res, 200, "Address set as default successfully", {});
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changePassword = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { oldPassword, newPassword } = req.body;
+
+    const user = await findIfUserExists(userId);
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) return responseHandler(res, 202, "Old password is incorrect");
+
+    const hashedPassword = await hashPassword(newPassword);
+    await updateUserPassword(user, hashedPassword);
+
+    return responseHandler(res, 200, "Password changed successfully", {});
   } catch (error) {
     next(error);
   }

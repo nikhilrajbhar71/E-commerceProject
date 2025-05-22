@@ -54,9 +54,7 @@ export const createUser = async (
 };
 
 export const findUserByPk = async (id) => {
-  const user = await User.findByPk(id);
-
-  return user;
+  return await User.findByPk(id);
 };
 export const findIfUserExists = async (id) => {
   const user = await findUserByPk(id);
@@ -75,9 +73,7 @@ export const deleteUser = async (id) => {
 };
 
 export const generateResetToken = async (email, token, expiresAt) => {
-  const newToken = await PasswordResetToken.create({ email, token, expiresAt });
-
-  return newToken;
+  return await PasswordResetToken.create({ email, token, expiresAt });
 };
 
 export const findResetToken = async (token) => {
@@ -151,12 +147,11 @@ export const fetchAddressById = async (id) => {
 };
 
 export const fetchAddressCount = async (userId) => {
-  const count = await Address.count({
+  return await Address.count({
     where: {
       userId,
     },
   });
-  return count;
 };
 
 export const setAddressAsDefault = async (id) => {
@@ -202,5 +197,10 @@ export const updateUserData = async (
 export const setUserAsVerified = async (user) => {
   user.otp = "";
   user.isVerified = true;
+  await user.save();
+};
+
+export const updateUserPassword = async (user, password) => {
+  user.password = password;
   await user.save();
 };

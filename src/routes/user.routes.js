@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  changePassword,
   deleteUserProfile,
   forgotPassword,
   getUserProfile,
@@ -17,6 +18,8 @@ import authenticateUser from "../middleware/authenticateUser.js";
 import { validateGetProduct } from "../middleware/validators/products/getProductValidator.js";
 import addressRouter from "./address.routes.js";
 import { validateUserRegisterVerify } from "../middleware/validators/users/validateUserRegisterVerify.js";
+import { validateUserId } from "../middleware/validators/users/validateUserId.js";
+import { validateChangePassword } from "../middleware/validators/users/validateUserPassword.js";
 
 const router = express.Router();
 
@@ -24,11 +27,11 @@ router.post("/send-otp", validateUserRegister, userRegisterRequest);
 router.post("/verify-otp", validateUserRegisterVerify, userRegisterVerify);
 router.post("/login", validateUserLogin, userLogin);
 router.get("/refresh", verifyRefreshToken, refreshToken);
-router.get("/:id", validateGetProduct, getUserProfile);
+router.get("/:id", validateUserId, getUserProfile);
 router.delete("/", authenticateUser, deleteUserProfile);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
-
+router.get("/change-password", validateChangePassword, authenticateUser,changePassword);
 router.use("/address", addressRouter);
 
 export default router;

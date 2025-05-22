@@ -10,7 +10,7 @@ export const createReviewService = async (
 };
 
 export const fetchAllReviews = async (productId) => {
-  const reviews = await Review.findAll({
+  return await Review.findAll({
     where: { productId },
     include: [
       {
@@ -19,7 +19,6 @@ export const fetchAllReviews = async (productId) => {
       },
     ],
   });
-  return reviews;
 };
 
 export const findReview = async (id, userId) => {

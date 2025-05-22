@@ -4,6 +4,7 @@ import Wishlist from "../models/wishlist.model.js";
 import AppError from "../utils/AppError.js";
 
 export const findOrCreateWishlistItems = async (userId, productVariantId) => {
+  // TODO : return directly without storing
   const [wishlist, created] = await Wishlist.findOrCreate({
     where: { userId, productVariantId },
   });
@@ -11,7 +12,7 @@ export const findOrCreateWishlistItems = async (userId, productVariantId) => {
 };
 
 export const findAllWishlistItems = async (userId) => {
-  const wishlist = await Wishlist.findAll({
+  return await Wishlist.findAll({
     where: { userId },
     include: [
       {
@@ -20,7 +21,6 @@ export const findAllWishlistItems = async (userId) => {
       },
     ],
   });
-  return wishlist;
 };
 
 export const removeItemFromWishlist = async (userId, productVariantId) => {

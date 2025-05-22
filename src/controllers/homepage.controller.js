@@ -1,11 +1,9 @@
-import Category from "../models/category.model.js";
 import {
   cacheDataInRedis,
   fetchHomePageDataFromRedis,
 } from "../services/redis.service.js";
 
 import { fetchProductForHomePage } from "../services/product.service.js";
-import redisClient from "../utils/redisClient.js";
 import responseHandler from "../utils/responseHandler.js";
 import { getPaginatedCategories } from "../services/category.service.js";
 
