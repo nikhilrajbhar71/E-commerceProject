@@ -102,7 +102,7 @@ export const getAllProducts = async (req, res, next) => {
       recent,
       page = 1,
       limit = 20,
-      search
+      search,
     } = req.query;
 
     const product = await getFilteredProducts(
@@ -139,7 +139,7 @@ export const getProduct = async (req, res, next) => {
       res,
       200,
       "Product fetched successfully",
-      new ProductResource(product).exec()
+      new ProductResource(product).toArray()
     );
   } catch (error) {
     next(error);

@@ -1,47 +1,54 @@
-import Resource from "resources.js";
+export default class ProductResource {
+  constructor(product) {
+    this.product = product;
+  }
 
-class ProductResource extends Resource {
-  toArray() {
+  // Format single variant object
+  formatVariant(variant) {
     return {
-      id: Number(this.id) || 0,
-      name: this.name || "",
-      description: this.description || "",
-      price: Number(this.price) || 0,
-      bannerImage: this.bannerImage || "",
-      rating: this.rating?.toString() || "0.0",
-      reviewCount: Number(this.reviewCount) || 0,
-      isActive: Boolean(this.isActive),
-      isDeleted: Boolean(this.isDeleted),
-      createdAt: this.createdAt || "",
-      updatedAt: this.updatedAt || "",
-      categoryId: Number(this.categoryId) || null,
-      sellerId: Number(this.sellerId) || null,
-      variants:
-        Array.isArray(this.variants) && this.variants.length > 0
-          ? this.groupVariantsBySize(this.variants)
-          : undefined,
+      id: variant.id,
+      color: variant.color,
+      size: variant.size,
+      price: variant.price,
+      stock: variant.stock,
+      sku: variant.sku,
     };
   }
 
-  groupVariantsBySize(variants) {
-    const grouped = {};
+  // Format product object with variants
+  formatProduct(product) {
+    return {
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      bannerImage: product.bannerImage,
+      rating: product.rating,
+      reviewCount: product.reviewCount,
+      isActive: product.isActive,
+      isDeleted: product.isDeleted,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
+      categoryId: product.categoryId,
+      sellerId: product.sellerId,
+      variants: Array.isArray(product.variants)
+        ? product.variants.map((variant) => this.formatVariant(variant))
+        : [],
+    };
+  }
 
-    for (const variant of variants) {
-      const size = variant.size || "UNKNOWN";
+  // Main method to get formatted product including relatedProducts
+  toArray() {
+    const formattedProduct = this.formatProduct(this.product);
 
-      if (!grouped[size]) grouped[size] = [];
-
-      grouped[size].push({
-        id: Number(variant.id) || 0,
-        color: variant.color || "",
-        price: variant.price?.toString() || "0",
-        stock: Number(variant.stock) || 0,
-        sku: variant.sku || "",
-      });
+    if (Array.isArray(this.product.relatedProducts)) {
+      formattedProduct.relatedProducts = this.product.relatedProducts.map(
+        (relatedProduct) => this.formatProduct(relatedProduct)
+      );
+    } else {
+      formattedProduct.relatedProducts = [];
     }
 
-    return grouped;
+    return formattedProduct;
   }
 }
-
-export default ProductResource;

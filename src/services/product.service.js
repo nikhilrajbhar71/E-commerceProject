@@ -177,7 +177,27 @@ export const getProductWithVariant = async (productId) => {
     throw new AppError(404, "Product not found");
   }
 
-  return product;
+  const relatedProducts = await Product.findAll({
+    where: {
+      categoryId: product.categoryId,
+      id: { [Op.ne]: product.id },
+    },
+    limit: 5,
+    include: [
+      {
+        model: ProductVariant,
+        attributes: ["id", "color", "size", "price", "stock", "sku"],
+        as: "variants",
+      },
+    ],
+  });
+
+  const productPlain = product.get({ plain: true });
+  productPlain.relatedProducts = relatedProducts.map((r) =>
+    r.get({ plain: true })
+  );
+
+  return productPlain;
 };
 
 export const updateProductService = async (product, reqBody) => {
