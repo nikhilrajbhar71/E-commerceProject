@@ -7,7 +7,7 @@ const authenticateUser = async (req, res, next) => {
   try {
     const authHeader = req.header("Authorization");
 
-    if (!authHeader || !authHeader?.startsWith("Bearer ")) {
+    if (!authHeader?.startsWith("Bearer ")) {
       return res
         .status(401)
         .json({ error: "Unauthorized - No Token Provided" });

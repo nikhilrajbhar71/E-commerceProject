@@ -20,7 +20,7 @@ export const createOrder = async (req, res, next) => {
     await fetchAddressById(addressId);
     // Question : DO I NEED TO VERIFY IF THE ADDRESS BELONGS TO THAT USER
     const cart = await findCartByUserId(userId);
-    if (cart.CartItems.length < 1) {
+    if (cart.CartItems?.length < 1) {
       return responseHandler(res, 202, "No items in cart", {});
     }
     const order = await createNewOrder(

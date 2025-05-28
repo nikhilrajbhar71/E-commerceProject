@@ -30,11 +30,6 @@ export const validateProductCreation = [
     .isFloat({ gt: 0 })
     .withMessage("Price must be a positive number"),
 
-  body("rating")
-    .optional()
-    .isFloat({ min: 0, max: 5 })
-    .withMessage("Rating must be between 0 and 5"),
-
   // body("bannerImage")
   //   .trim()
   //   .notEmpty()
@@ -47,16 +42,6 @@ export const validateProductCreation = [
     .withMessage("Category ID is required")
     .isInt({ gt: 0 })
     .withMessage("Category ID must be a valid positive integer"),
-
-  body("isActive")
-    .optional()
-    .isBoolean()
-    .withMessage("isActive must be a boolean value"),
-
-  body("isDeleted")
-    .optional()
-    .isBoolean()
-    .withMessage("isDeleted must be a boolean value"),
 
   handleValidationErrors,
 ];

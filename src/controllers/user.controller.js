@@ -109,7 +109,7 @@ export const userLogin = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await findUserByEmail(email);
 
-    if (!user || !user?.isVerified) {
+    if (!user?.isVerified) {
       return responseHandler(res, 404, "User doesn't exist, please sign up.");
     }
 

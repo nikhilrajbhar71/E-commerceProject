@@ -15,12 +15,10 @@ export const createNewProduct = async (
   name,
   description,
   price,
-  rating,
   bannerImage,
   categoryId,
   sellerId,
-  isActive,
-  isDeleted,
+
   transaction
 ) => {
   return await Product.create(
@@ -28,12 +26,9 @@ export const createNewProduct = async (
       name,
       description,
       price,
-      rating,
       bannerImage,
       categoryId,
       sellerId,
-      isActive,
-      isDeleted,
     },
     { transaction }
   );
@@ -102,9 +97,12 @@ export const getFilteredProducts = async (
       });
       recentIds = fallback.map((view) => view.productId);
 
-      if (recentIds.length > 0) {
-        await redisClient.del(key);
-        await redisClient.rPush(key, ...recentIds);
+      if (recentIds.length) {
+        await redisClient
+          .multi()
+          .del(key)
+          .rPush(key, ...recentIds)
+          .exec();
       }
     }
 
@@ -136,13 +134,6 @@ export const getFilteredProducts = async (
 
   const products = await Product.findAll({
     where,
-    include: [
-      {
-        model: ProductVariant,
-        as: "variants",
-        where: variantWhere,
-      },
-    ],
     order,
     limit: parseInt(limit),
     offset,
@@ -215,7 +206,7 @@ export const createVariantService = async (
   productId,
   transaction
 ) => {
-  await Promise.all(
+  return await Promise.all(
     variantsArray.map(async ({ color, size, price, stock, sku }) => {
       await checkIfVariantExists(size, color, productId);
       return ProductVariant.create(

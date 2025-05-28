@@ -17,15 +17,7 @@ export const createProduct = async (req, res, next) => {
   const t = await sequelize.transaction();
 
   try {
-    const {
-      name,
-      description,
-      price,
-      rating,
-      categoryId,
-      isActive,
-      isDeleted,
-    } = req.body;
+    const { name, description, price, categoryId } = req.body;
 
     const variants = JSON.parse(req.body.variants);
 
@@ -38,12 +30,10 @@ export const createProduct = async (req, res, next) => {
       name,
       description,
       price,
-      rating,
       bannerImage,
       categoryId,
       sellerId,
-      isActive,
-      isDeleted,
+
       t
     );
     const productWithVariant = await createVariantService(
@@ -51,14 +41,11 @@ export const createProduct = async (req, res, next) => {
       product.id,
       t
     );
+    //  TODO : to send product with variant,will do i on next working day
     await t.commit();
-    responseHandler(
-      res,
-      200,
-      "product created successfully",
-      new ProductResource(productWithVariant).exec()
-    );
+    responseHandler(res, 200, "product created successfully", product);
   } catch (error) {
+    console.log("error is " + JSON.stringify(error.message));
     await t.rollback();
     next(error);
   }

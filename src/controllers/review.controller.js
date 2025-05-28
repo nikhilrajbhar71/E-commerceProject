@@ -13,9 +13,11 @@ export const createReview = async (req, res, next) => {
   try {
     const { productId, rating, comment } = req.body;
     const userId = req.user.id;
-
-    await createReviewService(productId, rating, comment, userId);
-    await updateProductRating(productId);
+    //  doubt : we don't the sequence of the completion
+    await Promise.all([
+      createReviewService(productId, rating, comment, userId),
+      updateProductRating(productId),
+    ]);
 
     return responseHandler(res, 200, "Review created successfully", {});
   } catch (error) {
@@ -45,12 +47,12 @@ export const updateReview = async (req, res, next) => {
     const { id } = req.params;
     const { rating, comment } = req.body;
     const userId = req.user.id;
-    
 
     const review = await findReview(id, userId);
-    await updateReviewService(review, rating, comment);
-
-    await updateProductRating(review.productId);
+    await Promise.all([
+      updateReviewService(review, rating, comment),
+      updateProductRating(review.productId),
+    ]);
 
     return responseHandler(res, 200, "Reviews updated", {});
   } catch (error) {
