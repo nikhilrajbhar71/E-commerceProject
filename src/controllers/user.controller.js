@@ -36,6 +36,7 @@ import { sendOTP } from "../utils/sendSMS.js";
 
 import AddressResource from "../resources/address.resource.js";
 import { response } from "express";
+import BlacklistedToken from "../models/blacklistedToken.model.js";
 
 export const userRegisterRequest = async (req, res, next) => {
   try {
@@ -128,6 +129,18 @@ export const userLogin = async (req, res, next) => {
       accessToken,
       refreshToken,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const userLogout = async (req, res, next) => {
+  try {
+    await BlacklistedToken.create({
+      token: req.token,
+    });
+
+    return responseHandler(res, 200, "User logged out successfully", {});
   } catch (error) {
     next(error);
   }

@@ -7,6 +7,7 @@ import {
   refreshToken,
   resetPassword,
   userLogin,
+  userLogout,
   userRegisterRequest,
   userRegisterVerify,
 } from "../controllers/user.controller.js";
@@ -26,6 +27,8 @@ const router = express.Router();
 router.post("/send-otp", validateUserRegister, userRegisterRequest);
 router.post("/verify-otp", validateUserRegisterVerify, userRegisterVerify);
 router.post("/login", validateUserLogin, userLogin);
+router.delete("/logout", authenticateUser, userLogout);
+
 router.get("/refresh", verifyRefreshToken, refreshToken);
 router.get("/:id", validateUserId, getUserProfile);
 router.delete("/", authenticateUser, deleteUserProfile);

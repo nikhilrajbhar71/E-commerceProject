@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 import AppError from "../utils/AppError.js";
 import responseHandler from "../utils/responseHandler.js";
+import BlacklistedToken from "../models/blacklistedToken.model.js";
 
 const authenticateUser = async (req, res, next) => {
   try {
@@ -14,6 +15,15 @@ const authenticateUser = async (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
+    const isBlacklisted = await BlacklistedToken.findOne({
+      where: {
+        token,
+      },
+    });
+
+    if (isBlacklisted) {
+      return responseHandler(res, 401, "Token is expired", {});
+    }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (!decoded) {
@@ -26,6 +36,7 @@ const authenticateUser = async (req, res, next) => {
     }
 
     req.user = user;
+    req.token = token;
     next();
   } catch (error) {
     next(error);

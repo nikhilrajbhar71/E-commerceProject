@@ -5,7 +5,7 @@ class WishlistResource extends Resource {
     return {
       id: Number(this.id) || 0,
       userId: Number(this.userId) || 0,
-      productVariantId: Number(this.productVariantId) || 0,
+      productId: Number(this.productId) || 0,
       createdAt: this.createdAt || "",
       updatedAt: this.updatedAt || "",
       product: this.ProductVariant?.Product

@@ -8,12 +8,12 @@ import responseHandler from "../utils/responseHandler.js";
 
 export const addToWishlist = async (req, res, next) => {
   try {
-    const { productVariantId } = req.body;
+    const { productId } = req.body;
     const userId = req.user.id;
-    //TODO : user create of find in cart as well, we are manually checking if cart is present or not
+    //TODO : usingS create or find in cart as well, we are manually checking if cart is present or not
     const [wishlist, created] = await findOrCreateWishlistItems(
       userId,
-      productVariantId
+      productId
     );
 
     return responseHandler(
@@ -32,13 +32,8 @@ export const getWishlist = async (req, res, next) => {
     const userId = req.user.id;
 
     const wishlist = await findAllWishlistItems(userId);
-
-    return responseHandler(
-      res,
-      200,
-      "Fetched wishlist items",
-      WishlistResource.collection(wishlist)
-    );
+    // TODO : UPDATE wishlist resource
+    return responseHandler(res, 200, "Fetched wishlist items", wishlist);
   } catch (error) {
     next(error);
   }
@@ -47,9 +42,9 @@ export const getWishlist = async (req, res, next) => {
 export const removeFromWishlist = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { productVariantId } = req.params;
+    const { productId } = req.params;
 
-    await removeItemFromWishlist(userId, productVariantId);
+    await removeItemFromWishlist(userId, productId);
 
     return responseHandler(res, 200, "Item removed from wishlist", {});
   } catch (error) {

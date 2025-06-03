@@ -3,10 +3,10 @@ import ProductVariant from "../models/productVariant.model.js";
 import Wishlist from "../models/wishlist.model.js";
 import AppError from "../utils/AppError.js";
 
-export const findOrCreateWishlistItems = async (userId, productVariantId) => {
+export const findOrCreateWishlistItems = async (userId, productId) => {
   // TODO : return directly without storing
   const [wishlist, created] = await Wishlist.findOrCreate({
-    where: { userId, productVariantId },
+    where: { userId, productId },
   });
   return [wishlist, created];
 };
@@ -16,16 +16,15 @@ export const findAllWishlistItems = async (userId) => {
     where: { userId },
     include: [
       {
-        model: ProductVariant,
-        include: [{ model: Product }],
+        model: Product,
       },
     ],
   });
 };
 
-export const removeItemFromWishlist = async (userId, productVariantId) => {
+export const removeItemFromWishlist = async (userId, productId) => {
   const deleted = await Wishlist.destroy({
-    where: { userId, productVariantId },
+    where: { userId, productId },
   });
   if (!deleted) {
     throw new AppError(202, "Item couldn't be deleted");

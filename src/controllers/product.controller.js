@@ -71,7 +71,7 @@ export const deleteProduct = async (req, res, next) => {
 
     await deleteProductById(req.params.id);
 
-    return responseHandler(res, 200, "product status deleted successfully", {});
+    return responseHandler(res, 200, "product  deleted successfully", {});
   } catch (error) {
     next(error);
   }

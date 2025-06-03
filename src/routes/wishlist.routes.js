@@ -13,7 +13,7 @@ const router = express.Router();
 router.post("/", validateAddToWishlist, authenticateUser, addToWishlist);
 router.get("/", authenticateUser, getWishlist);
 router.delete(
-  "/:productVariantId",
+  "/:productId",
   validateRemoveFromWishlist,
   authenticateUser,
   removeFromWishlist

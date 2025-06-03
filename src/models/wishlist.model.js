@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.js";
-import ProductVariant from "./productVariant.model.js";
 import User from "./user.model.js";
+import Product from "./product.model.js";
 
 const Wishlist = sequelize.define(
   "Wishlist",
@@ -15,7 +15,7 @@ const Wishlist = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    productVariantId: {
+    productId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -27,7 +27,7 @@ const Wishlist = sequelize.define(
 User.hasMany(Wishlist, { foreignKey: "userId" });
 Wishlist.belongsTo(User, { foreignKey: "userId" });
 
-ProductVariant.hasMany(Wishlist, { foreignKey: "productVariantId" });
-Wishlist.belongsTo(ProductVariant, { foreignKey: "productVariantId" });
+Product.hasMany(Wishlist, { foreignKey: "productId" });
+Wishlist.belongsTo(Product, { foreignKey: "productId" });
 
 export default Wishlist;

@@ -10,7 +10,7 @@ function handleValidationErrors(req, res, next) {
 }
 
 export const validateAddToWishlist = [
-  body("productVariantId")
+  body("productId")
     .exists()
     .withMessage("productVariantId is required")
     .isInt({ gt: 0 })

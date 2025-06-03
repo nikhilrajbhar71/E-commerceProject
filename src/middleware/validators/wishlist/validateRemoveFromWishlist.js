@@ -10,9 +10,9 @@ function handleValidationErrors(req, res, next) {
 }
 
 export const validateRemoveFromWishlist = [
-  param("productVariantId")
+  param("productId")
     .isInt({ gt: 0 })
-    .withMessage("productVariantId must be a valid positive integer"),
+    .withMessage("productId must be a valid positive integer"),
 
   handleValidationErrors,
 ];

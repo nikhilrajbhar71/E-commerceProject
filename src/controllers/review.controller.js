@@ -13,11 +13,9 @@ export const createReview = async (req, res, next) => {
   try {
     const { productId, rating, comment } = req.body;
     const userId = req.user.id;
-    //  doubt : we don't the sequence of the completion
-    await Promise.all([
-      createReviewService(productId, rating, comment, userId),
-      updateProductRating(productId),
-    ]);
+    //  doubt : we don't know the sequence of the completion
+    await createReviewService(productId, rating, comment, userId);
+    await updateProductRating(productId);
 
     return responseHandler(res, 200, "Review created successfully", {});
   } catch (error) {

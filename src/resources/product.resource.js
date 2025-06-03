@@ -15,8 +15,24 @@ export default class ProductResource {
     };
   }
 
+  // Group variants by size
+  groupVariantsBySize(variants) {
+    return variants.reduce((acc, variant) => {
+      const size = variant.size;
+      if (!acc[size]) {
+        acc[size] = [];
+      }
+      acc[size].push(this.formatVariant(variant));
+      return acc;
+    }, {});
+  }
+
   // Format product object with variants
   formatProduct(product) {
+    const formattedVariants = Array.isArray(product.variants)
+      ? product.variants.map((variant) => this.formatVariant(variant))
+      : [];
+
     return {
       id: product.id,
       name: product.name,
@@ -31,9 +47,8 @@ export default class ProductResource {
       updatedAt: product.updatedAt,
       categoryId: product.categoryId,
       sellerId: product.sellerId,
-      variants: Array.isArray(product.variants)
-        ? product.variants.map((variant) => this.formatVariant(variant))
-        : [],
+
+      variantsBySize: this.groupVariantsBySize(product.variants || []),
     };
   }
 
